@@ -3,6 +3,7 @@ from tkinter import ttk
 import math
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import logging
 
 
 class App(tk.Tk):
@@ -35,6 +36,7 @@ class Calculator(tk.Toplevel):
         self.geometry("300x400")
         self.result = tk.StringVar(value="0")
         self.init_ui()
+        logging.basicConfig(level=logging.INFO, filename="py_log.log",filemode="w", encoding = "UTF-8")
 
     def init_ui(self):
         # Поле для отображения результата
@@ -62,15 +64,22 @@ class Calculator(tk.Toplevel):
             self.result.set("0")
         elif char == "=":
             try:
+                logging.info(f'Example: {self.result.get()}')
                 self.result.set(eval(self.result.get()))
+                logging.info(f'Result: {self.result.get()}')
+            except ZeroDivisionError:
+                self.result.set("Ошибка")
+                logging.error(f'Ошибка деления на ноль')
             except Exception:
                 self.result.set("Ошибка")
+                logging.error(f'{self.result.get()}')
+                
         else:
             if self.result.get() == "0":
                 self.result.set(char)
             else:
                 self.result.set(self.result.get() + char)
-
+  
 
 class GraphMenu(tk.Toplevel):
     def __init__(self, parent):
@@ -78,6 +87,7 @@ class GraphMenu(tk.Toplevel):
         self.title("Меню выбора функции")
         self.geometry("300x200")
         self.init_ui()
+        logging.basicConfig(level=logging.INFO, filename="py_log.log",filemode="w", encoding = "UTF-8")
 
     def init_ui(self):
         self.functions = {
@@ -128,6 +138,7 @@ class GraphWindow(tk.Toplevel):
         self.ax.legend()
         self.ax.grid()
         self.canvas.draw()
+        logging.info(f'Функция: {self.func}')
 
 
 if __name__ == "__main__":
