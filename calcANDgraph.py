@@ -8,19 +8,30 @@ import logging
 
 class App(tk.Tk):
     def __init__(self):
+        logging.basicConfig(level=logging.INFO, filename="py_log.log",filemode="w", encoding = "UTF-8")
         super().__init__()
         self.title("Главное меню")
+        logging.info('Было запущено приложение')
         self.geometry("400x300")
+
+        # Добавляем обработчик закрытия окна
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
+
         self.init_ui()
 
     def init_ui(self):
         # Первая кнопка - Калькулятор
-        calc_button = ttk.Button(self, text="Калькулятор", command=self.open_calculator)
+        calc_button = tk.Button(self, text="Калькулятор", command=self.open_calculator, height=5, width=30, font=("Arial", 10), background='#91959e', activebackground="#82898f")
         calc_button.pack(pady=20)
 
-        # Вторая кнопка - Нарисовать график
-        graph_button = ttk.Button(self, text="Нарисовать график", command=self.open_graph_menu)
+        # Вторая кнопка - Нарисовать график     
+        graph_button = tk.Button(self, text="Нарисовать график", command=self.open_graph_menu, height=5, width=30, font=("Arial", 10), background='#91959e', activebackground="#82898f")
         graph_button.pack(pady=20)
+
+
+    def on_close(self):
+        logging.info('Закрыто главное окно')
+        self.destroy()  # Закрывает окно
 
     def open_calculator(self):
         Calculator(self)
@@ -29,14 +40,27 @@ class App(tk.Tk):
         GraphMenu(self)
 
 
+
+
 class Calculator(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title("Калькулятор")
         self.geometry("300x400")
         self.result = tk.StringVar(value="0")
+
+
+         # Добавляем обработчик закрытия окна
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
+        
+
         self.init_ui()
-        logging.basicConfig(level=logging.INFO, filename="py_log.log",filemode="w", encoding = "UTF-8")
+        logging.info('Был открыт калькулятор')
+        
+    
+    def on_close(self):
+        logging.info('Закрыт калькулятор')
+        self.destroy()
 
     def init_ui(self):
         # Поле для отображения результата
@@ -80,14 +104,22 @@ class Calculator(tk.Toplevel):
             else:
                 self.result.set(self.result.get() + char)
   
-
 class GraphMenu(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title("Меню выбора функции")
         self.geometry("300x200")
+
+         # Добавляем обработчик закрытия окна
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
+
         self.init_ui()
-        logging.basicConfig(level=logging.INFO, filename="py_log.log",filemode="w", encoding = "UTF-8")
+        logging.info('Было открыто Меню выбора функции')
+
+
+    def on_close(self):
+        logging.info('Закрыто Меню выбора функции')
+        self.destroy()
 
     def init_ui(self):
         self.functions = {
@@ -106,15 +138,18 @@ class GraphMenu(tk.Toplevel):
 
     def open_graph_window(self):
         selected_func = self.functions[self.function_var.get()]
-        GraphWindow(self, selected_func)
+        selected_func_name = self.function_var.get()  # Получаем название функции
+        GraphWindow(self, selected_func, selected_func_name)
 
 
 class GraphWindow(tk.Toplevel):
-    def __init__(self, parent, func):
+    def __init__(self, parent, func, func_name):
         super().__init__(parent)
         self.title("Построение графика")
+        logging.info('Было открыто построение графика')
         self.geometry("600x400")
         self.func = func
+        self.func_name = func_name  # Сохраняем название функции
         self.k = tk.DoubleVar(value=1)
         self.init_ui()
 
@@ -132,13 +167,12 @@ class GraphWindow(tk.Toplevel):
         x = [i / 10 for i in range(-100, 101)]
         y = [self.func(i, self.k.get()) for i in x]
 
-
         self.ax.clear()
-        self.ax.plot(x, y, label=f"y = {self.func}")
+        self.ax.plot(x, y, label=f"{self.func_name}, k={self.k.get():.2f}")  # Используем название функции
         self.ax.legend()
         self.ax.grid()
         self.canvas.draw()
-        logging.info(f'Функция: {self.func}')
+        logging.info(f'Был нарисован график - {self.func_name} с коэффицентом - {self.k.get()}')
 
 
 if __name__ == "__main__":
