@@ -31,6 +31,7 @@ class App(tk.Tk):
     def on_close(self):
         logging.info('Закрыто главное окно')
         self.destroy()  # Закрывает окно
+        quit()
 
     def open_calculator(self):
         Calculator(self)
