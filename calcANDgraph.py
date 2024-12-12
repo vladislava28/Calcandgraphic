@@ -89,7 +89,11 @@ class Calculator(tk.Toplevel):
             self.grid_columnconfigure(i, weight=1)
 
     def on_button_click(self, char):
-        if char == "C":
+        
+        if self.result.get() == 'Ошибка':
+            self.result.set("0")
+
+        if char == "C" :
             self.result.set("0")
         elif char == "=":
             try:
@@ -183,11 +187,21 @@ class GraphWindow(tk.Toplevel):
         self.func = func
         self.func_name = func_name  # Сохраняем название функции
         self.k = tk.DoubleVar(value=1)
+        # Добавляем обработчик закрытия окна
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
         self.init_ui()
+
+    def on_close(self):
+        logging.info('Закрыто окно с графиком')
+        self.fig.clear()
+        plt.close(self.fig)
+        self.destroy()
 
     def update_k_label(self, *args):
         # Обновляем текст метки с новым значением k
         self.k_label.config(text=f"Коэффициент k: {self.k.get():.2f}")
+        
+
 
     def init_ui(self):
         # Создаем метку для отображения значения коэффициента k
